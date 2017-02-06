@@ -2,6 +2,42 @@
 
 Provides a flexible cache library for Android applications integrated with RxJava.
 
+## Introduction
+
+Retrocache provides a flexible cache for network requests.
+
+If you use [Retrofit](http://square.github.io/retrofit/) as your network library and use [RxJava](https://github.com/ReactiveX/RxJava) in your app, you can simply declare an interface like below.
+
+```java
+public interface GitHubService {
+  @Cache(CachePolicy.PREFER_CACHE)
+  @Expiration(value = 15, timeUnit = TimeUnit.MINUTES)
+  @GET("users/{user}/repos")
+  Observable<List<Repo>> listRepos(@Path("user") String user);
+}
+```
+
+The `Retrocache` class generates an implementation that caches the source result for 15 minutes of the `GitHubService.listRepos()` method.
+
+```java
+Retrofit retrofit = new Retrofit.Builder()
+    .baseUrl("https://api.github.com/")
+    .build();
+
+GitHubService service = retrofit.create(GitHubService.class);
+
+CacheInterface cache = new DiskLruCacheJakeWhartonImpl(...);
+GitHubService cachedService = Retrocache.with(GitHubService.class, service)
+                                  .cache(cache)
+                                  .create();
+```
+
+
+
+## Bugs and Feedback
+
+For bugs, questions and discussions please use the [Github Issues](https://github.com/Alonexx/Retrocache/issues).
+
 ## License
 
 ```
